@@ -103,3 +103,26 @@ def iiqs_4_import(path_src, path_dst):
     for i in iiqs_4_import(source, destination):
         print(i)
     get_date_of_photo()
+
+
+
+# because now I'm finally using scandir instead of walk 🙄
+def scantree(path):
+    """Recursively yield DirEntry objects for given directory."""
+for entry in os.scandir(path):
+    if entry.is_dir(follow_symlinks=False):
+        yield from scantree(entry.path)  
+    else:
+        yield entry
+
+
+def transfer_which_iiqs(fromhere, tohere):
+    print(len(list([i.path for i in scantree(fromhere) if '.IIQ' in i.name])))
+    print(len(list([i.path for i in scantree(tohere) if '.IIQ' in i.name])))
+    here =  [i.name for i in scantree(fromhere) if '.IIQ' in i.name]
+    there = [i.name for i in scantree(tohere) if '.IIQ' in i.name]
+    
+    return [iiq for iiq in here if iiq not in there]
+
+
+transfer_which_iiqs(source, destination)
