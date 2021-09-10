@@ -145,13 +145,13 @@ def transfer_which_raws(fromhere, tohere):
             if '_' in str(i.name):
                 files_i_somehow_missed.append(i.name)
             else:
-                files_new.append([i.name, i.path])
+                files_new.append([i.name, i.path, f'{get_date_of_photo(i.path)}_{i.name}'])
         else:
             pass
     # list of all raw images in destination
     there = [i.name for i in scantree(tohere) if ('.IIQ' or '.NEF') in i.name]
     # list of raw images if they match existing files when standard 'date_name.iiq' scheme is applied
-    new_files_4_import = [iiq for iiq in files_new if f'{get_date_of_photo(iiq[1])}_{iiq[0]}' not in there]
+    new_files_4_import = [iiq for iiq in files_new if iiq[2] not in there]
     # these are files that were probably named, but for some reason weren't imported
     forgotton_files = [iiq for iiq in files_i_somehow_missed if iiq not in there]
     print(f'{len(new_files_4_import)} new images')
