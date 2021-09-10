@@ -126,3 +126,36 @@ def transfer_which_iiqs(fromhere, tohere):
 
 
 transfer_which_iiqs(source, destination)
+
+
+
+# after slamming head against wall, I broke through to a solution-ish
+def transfer_which_raws(fromhere, tohere):
+    ''' 
+    compares directories for uninported images. 
+    checks for YYYY-MM-DD_filename.iiq format using creation date of file.
+    outputs list of (filename, filepath)
+    '''
+    print(f"{len(list([i for i in scantree(fromhere) if ('.IIQ' or '.NEF') in i.name]))} images in source")
+    print(f"{len(list([i for i in scantree(tohere) if ('.IIQ' or '.NEF') in i.name]))} images in destination")
+    files_i_somehow_missed = []
+    files_new = []
+    for i in scantree(fromhere):
+        if ('.IIQ' or '.NEF') in i.name:
+            if '_' in str(i.name):
+                files_i_somehow_missed.append(i.name)
+            else:
+                files_new.append([i.name, i.path])
+        else:
+            pass
+    # list of all raw images in destination
+    there = [i.name for i in scantree(tohere) if ('.IIQ' or '.NEF') in i.name]
+    # list of raw images if they match existing files when standard 'date_name.iiq' scheme is applied
+    new_files_4_import = [iiq for iiq in files_new if f'{get_date_of_photo(iiq[1])}_{iiq[0]}' not in there]
+    # these are files that were probably named, but for some reason weren't imported
+    forgotton_files = [iiq for iiq in files_i_somehow_missed if iiq not in there]
+    print(f'{len(new_files_4_import)} new images')
+    if len(forgotton_files) != 0:
+        print(f'!!!{len(forgotton_files)} forgotton files (date_name.iiq in src, but not dst)!!!')
+    
+    return new_files_4_import
