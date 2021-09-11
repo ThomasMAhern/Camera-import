@@ -1,6 +1,7 @@
 import os
 import time
 import sys
+import shutil
 
 source = sys.argv[1]
 destination = sys.argv[2]
@@ -30,7 +31,7 @@ def scantree(path):
 
 def transfer_which_raws(fromhere, tohere):
     ''' 
-    compares directories for uninported images. 
+    compares directories for unimported images. 
     checks for YYYY-MM-DD_filename.iiq format using creation date of file.
     outputs list of (filename, filepath)
     '''
@@ -41,24 +42,47 @@ def transfer_which_raws(fromhere, tohere):
     for i in scantree(fromhere):
         if ('.IIQ' or '.NEF') in i.name:
             if '_' in str(i.name):
-                files_i_somehow_missed.append(i.name)
+                files_i_somehow_missed.append([i.name, i.path, i.name])
             else:
                 files_new.append([i.name, i.path, f'{get_date_of_photo(i.path)}_{i.name}'])
-        else:
-            pass
     # list of all raw images in destination
     there = [i.name for i in scantree(tohere) if ('.IIQ' or '.NEF') in i.name]
     # list of raw images if they match existing files when standard 'date_name.iiq' scheme is applied
     new_files_4_import = [iiq for iiq in files_new if iiq[2] not in there]
     # these are files that were probably named, but for some reason weren't imported
-    forgotton_files = [iiq for iiq in files_i_somehow_missed if iiq not in there]
+    forgotton_files = [iiq for iiq in files_i_somehow_missed if iiq[2] not in there]
     print(f'{len(new_files_4_import)} unimported images')
     if len(forgotton_files) != 0:
-        print(f'!!!{len(forgotton_files)} forgotton files (date_name.iiq in src, but not dst)!!!')
-    
+        print(f'!!! {len(forgotton_files)} forgotton files (date_name.iiq in src, but not dst)!!!')
+#     return files_i_somehow_missed 
     return new_files_4_import
+
+def make_folder_if_needed(unloved_photos):
+    '''makes folders if the don't exist
+    takes output from transfer_which_raws function'''
+    for name, path, new_name in unloved_photos:
+        if not os.path.exists(f'{destination}/{get_date_of_photo(path)}'):
+            os.mkdir(f'{destination}/{get_date_of_photo(path)}')
+            print(f'Had to make {get_date_of_photo(path)} folder')
+
+def copy_files_2_dst_with_newname(unloved_photos):
+    '''import shutil, make sure paths are loaded'''
+    for name, path, new_name in unloved_photos:
+        shutil.copy2(path, f'{destination}/{get_date_of_photo(path)}/{new_name}')
+        print(f'{name} copied!')
+    print('All files copied!')
 
 
 unloved_photos = transfer_which_raws(source, destination)
+
+# shows photos that need to be transferred
 for name, path, new_name in unloved_photos:
     print(name, '|',  new_name, '|', path)
+
+make_folder_if_needed(unloved_photos)
+
+# # This is copying no matter what, so just commenting it out until I can fix
+# if len(unloved_photos) != 0:
+#     copy_photos_choice = input('Do you want to copy the photos? y/n')
+#     if copy_photos_choice.lower() == 'y' or 'yes':
+#         copy_files_2_dst_with_newname(unloved_photos)
