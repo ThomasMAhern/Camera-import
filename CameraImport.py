@@ -67,9 +67,11 @@ def make_folder_if_needed(unloved_photos):
 
 def copy_files_2_dst_with_newname(unloved_photos):
     '''import shutil, make sure paths are loaded'''
+    counter = len(unloved_photos)
     for name, path, new_name in unloved_photos:
         shutil.copy2(path, f'{destination}/{get_date_of_photo(path)}/{new_name}')
-        print(f'{name} copied!')
+        counter -= 1
+        print(f'{name} copied, {counter} more to go!')
     print('All files copied!')
 
 
