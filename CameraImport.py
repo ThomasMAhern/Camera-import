@@ -48,6 +48,7 @@ def show_files_4_import(list_of_DirEntries):
 #     print(f'')
 
 unloved_photos = transfer_which_raws(source, destination)
+unloved_photos.sort(key=lambda x: x.name)
 # show_files_4_import(unloved_photos)
 make_folder_if_needed(unloved_photos)
 copy_files_2_dst_with_newname(unloved_photos)
