@@ -41,11 +41,11 @@ def show_files_4_import(list_of_DirEntries):
     pretty_view = [f'{add_date_2_DirEntry_name(i)}  |  {i.name}  |  {i.path}' for i in list_of_DirEntries]
     return pretty_view
 
-def any_files_corrupt()
-    total_src_photos = list(set(i for i in scantree(source) if i.name.endswith('.IIQ'))) #images in src
-    total_dst_photos = list(set(i for i in scantree(destination) if i.name.endswith('.IIQ'))) #images in dst
-    if add_date_2_DirEntry_name(i) 
-    print(f'')
+# def any_files_corrupt():
+#     total_src_photos = list(set(i for i in scantree(source) if i.name.endswith('.IIQ'))) #images in src
+#     total_dst_photos = list(set(i for i in scantree(destination) if i.name.endswith('.IIQ'))) #images in dst
+#     if add_date_2_DirEntry_name(i) 
+#     print(f'')
 
 unloved_photos = transfer_which_raws(source, destination)
 # show_files_4_import(unloved_photos)
