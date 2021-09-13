@@ -6,6 +6,35 @@ import shutil
 source = sys.argv[1]
 destination = sys.argv[2]
 
+def get_date_of_photo(photo_path):
+    '''This outputs the date for each photo YYYY-MM-DD 
+    Ensure 'os' and 'time' are imported'''
+    ti_c = os.path.getctime(photo_path) # get time of file
+    c_ti = time.ctime(ti_c) # Convert time in seconds to timestamp
+    ti_m = os.path.getmtime(photo_path)
+    m_ti = time.ctime(ti_m)
+    t_obj = time.strptime(m_ti) # Use timestamp string to create time object/structure
+    t_stamp = time.strftime("%Y-%m-%d", t_obj) # Transform time object to date timestamp
+    return str(t_stamp)
+
+def add_date_2_filename(file):
+    '''This takes a filename and adds the date to the beginning of it.'''
+    return str(get_date_of_photo(file) + "_" + file)
+
+def add_date_2_DirEntry_name(dir_entry):
+    if '_' not in dir_entry.name:
+        return f'{get_date_of_photo(dir_entry.path)}_{dir_entry.name}'
+    else:
+        return dir_entry.name
+
+def scantree(path):
+    """Recursively yield DirEntry objects for given directory."""
+    for entry in os.scandir(path):
+        if entry.is_dir(follow_symlinks=False):
+            yield from scantree(entry.path)  
+        else:
+            yield entry
+
 def transfer_which_raws(source, destination):
     total_src_photos = [i for i in scantree(source) if i.name.endswith('.IIQ')] #images in src
     total_dst_photos = [i for i in scantree(destination) if i.name.endswith('.IIQ')] #images in dst
@@ -45,7 +74,7 @@ def copy_files_2_dst_with_newname(unloved_photos):
     for photo in unloved_photos:
         shutil.copy2(photo.path, f'{destination}/{get_date_of_photo(photo.path)}/{add_date_2_DirEntry_name(photo)}')
         counter -= 1
-        print(f'{photo.name} copied, {counter} more to go!')
+        print(f'{photo.name} copied to {photo.path}, {counter} more to go!')
     print('All files copied!')
     
 def show_files_4_import(list_of_DirEntries):
