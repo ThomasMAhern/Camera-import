@@ -54,6 +54,7 @@ def transfer_which_raws(source, destination):
             if add_date_2_DirEntry_name(a) in b.name:
                 if not os.path.getsize(a.path) == os.path.getsize(b.path):
                     print(f'{a.path} is likely corrupted')
+                    print(f'SRC: {os.path.getsize(a.path)} vs DST: {os.path.getsize(b.path)}')
                     if not os.path.getsize(a.path) > os.path.getsize(b.path):
                         print('the src file size is oddly smaller than the dst one and needs manual verification')
                         pass
