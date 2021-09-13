@@ -40,7 +40,7 @@ def transfer_which_raws(fromhere, tohere):
     files_i_somehow_missed = []
     files_new = []
     for i in scantree(fromhere):
-        if ('.IIQ' or '.NEF') in i.name:
+        if i.name.endswith('.IIQ' or '.NEF'):
             if '_' in str(i.name):
                 files_i_somehow_missed.append([i.name, i.path, i.name])
             else:
