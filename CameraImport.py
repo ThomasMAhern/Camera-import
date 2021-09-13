@@ -7,18 +7,29 @@ source = sys.argv[1]
 destination = sys.argv[2]
 
 def transfer_which_raws(source, destination):
-    total_src_photos = list(set(i for i in scantree(source) if i.name.endswith('.IIQ'))) #images in src
-    total_dst_photos = list(set(i for i in scantree(destination) if i.name.endswith('.IIQ'))) #images in dst
+    total_src_photos = [i for i in scantree(source) if i.name.endswith('.IIQ')] #images in src
+    total_dst_photos = [i for i in scantree(destination) if i.name.endswith('.IIQ')] #images in dst
     uneaten_photos = [i for i in scantree(source) if i.name.endswith('.IIQ') if '_' not in i.name 
-                          if add_date_2_DirEntry_name(i) not in [i.name for i in total_dst_photos]] #not previously imported
+                          if add_date_2_DirEntry_name(i) not in [x.name for x in total_dst_photos]] #not previously imported
     undigested_photos = [i for i in scantree(source) if i.name.endswith('.IIQ') if '_' in i.name 
-                         if i.name not in [i.name for i in total_dst_photos]] #namechange suggests previous import, but photo not in dst
+                         if i.name not in [x.name for x in total_dst_photos]] #namechange suggests previous import, but photo not in dst
     photos_4_import = uneaten_photos + undigested_photos
-#     would_b_duplicates = [i for i in total_src_photos if add_date_2_DirEntry_name(i) in [add_date_2_DirEntry_name(i) for i in total_dst_photos]]
     print(f'Source: {len(total_src_photos)} images  |  Destination: {len(total_dst_photos)} images')
     print(f'{len(photos_4_import)} images to import')
-#     print(f'{len(would_b_duplicates)} would-be duplicates')
-#     return would_b_duplicates
+    would_b_dupes = [i for i in total_src_photos if add_date_2_DirEntry_name(i) in [add_date_2_DirEntry_name(x) for x in total_dst_photos]]
+    print(f'{len(would_b_dupes)} would-be duplicates (excluded from import)')
+    # this searches for duplicates with incongruent file sizes, meaning the dst one likely didn't finish transferring
+    # it then adds it to list to be imported and overwritten, unless the src file is smaller (aka even more weirdness)
+    for a in would_b_dupes:
+        for b in total_dst_photos:
+            if add_date_2_DirEntry_name(a) in b.name:
+                if not os.path.getsize(a.path) == os.path.getsize(b.path):
+                    print(f'{a.path} is likely corrupted')
+                    if not os.path.getsize(a.path) > os.path.getsize(b.path):
+                        print('the src file size is oddly smaller than the dst one and needs manual verification')
+                        pass
+                    else:
+                        photos_4_import.append(a)
     return photos_4_import
 
 def make_folder_if_needed(unloved_photos):
@@ -41,15 +52,10 @@ def show_files_4_import(list_of_DirEntries):
     pretty_view = [f'{add_date_2_DirEntry_name(i)}  |  {i.name}  |  {i.path}' for i in list_of_DirEntries]
     return pretty_view
 
-# def any_files_corrupt():
-#     total_src_photos = list(set(i for i in scantree(source) if i.name.endswith('.IIQ'))) #images in src
-#     total_dst_photos = list(set(i for i in scantree(destination) if i.name.endswith('.IIQ'))) #images in dst
-#     if add_date_2_DirEntry_name(i) 
-#     print(f'')
-
 unloved_photos = transfer_which_raws(source, destination)
+list(set(unloved_photos))
 unloved_photos.sort(key=lambda x: x.name)
-# show_files_4_import(unloved_photos)
+
 make_folder_if_needed(unloved_photos)
 copy_files_2_dst_with_newname(unloved_photos)
 
