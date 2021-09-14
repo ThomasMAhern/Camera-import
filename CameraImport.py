@@ -36,11 +36,11 @@ def scantree(path):
             yield entry
 
 def transfer_which_raws(source, destination):
-    total_src_photos = [i for i in scantree(source) if i.name.endswith('.IIQ')] #images in src
-    total_dst_photos = [i for i in scantree(destination) if i.name.endswith('.IIQ')] #images in dst
-    uneaten_photos = [i for i in scantree(source) if i.name.endswith('.IIQ') if '_' not in i.name 
+    total_src_photos = [i for i in scantree(source) if i.name.endswith('.IIQ' or '.NEF')] #images in src
+    total_dst_photos = [i for i in scantree(destination) if i.name.endswith('.IIQ' or '.NEF')] #images in dst
+    uneaten_photos = [i for i in scantree(source) if i.name.endswith('.IIQ' or '.NEF') if '_' not in i.name 
                           if add_date_2_DirEntry_name(i) not in [x.name for x in total_dst_photos]] #not previously imported
-    undigested_photos = [i for i in scantree(source) if i.name.endswith('.IIQ') if '_' in i.name 
+    undigested_photos = [i for i in scantree(source) if i.name.endswith('.IIQ' or '.NEF') if '_' in i.name 
                          if i.name not in [x.name for x in total_dst_photos]] #namechange suggests previous import, but photo not in dst
     photos_4_import = uneaten_photos + undigested_photos
     print(f'Source: {len(total_src_photos)} images  |  Destination: {len(total_dst_photos)} images')
@@ -49,6 +49,7 @@ def transfer_which_raws(source, destination):
     print(f'{len(would_b_dupes)} would-be duplicates (excluded from import)')
     # this searches for duplicates with incongruent file sizes, meaning the dst one likely didn't finish transferring
     # it then adds it to list to be imported and overwritten, unless the src file is smaller (aka even more weirdness)
+    potentially_corrupted = []
     for a in would_b_dupes:
         for b in total_dst_photos:
             if add_date_2_DirEntry_name(a) in b.name:
